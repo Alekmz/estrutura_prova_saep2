@@ -31,9 +31,9 @@ FOR EACH ROW EXECUTE FUNCTION atualizar_timestamp();
 CREATE TABLE IF NOT EXISTS produtos (
   id SERIAL PRIMARY KEY,
   nome VARCHAR(160) NOT NULL,
-  descricao TEXT NULL,
-  quantidade NUMERIC(12, 3) NOT NULL DEFAULT 0,
-  unidade VARCHAR(20) NOT NULL DEFAULT 'UN',
+  categoria VARCHAR(100) NOT NULL,
+  quantidade NUMERIC(12,3) NOT NULL DEFAULT 0,
+  valor_unitario NUMERIC(10,2) NOT NULL,
   data_cadastro TIMESTAMP NOT NULL DEFAULT NOW(),
   atualizado_em TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -44,6 +44,16 @@ CREATE INDEX IF NOT EXISTS idx_produtos_data_cadastro ON produtos (data_cadastro
 CREATE TRIGGER trg_produtos_atualizado_em
 BEFORE UPDATE ON produtos
 FOR EACH ROW EXECUTE FUNCTION atualizar_timestamp();
+
+CREATE VIEW vw_estoque AS
+SELECT
+  id,
+  nome,
+  categoria,
+  quantidade,
+  valor_unitario,
+  quantidade * valor_unitario AS valor_total
+FROM produtos;
 
 CREATE TABLE IF NOT EXISTS movimentacoes (
   id SERIAL PRIMARY KEY,
@@ -68,3 +78,17 @@ SELECT 'Administrador', 'admin@almoxarifado.local', '$2a$10$Aw93fnrpuB41kNXViAWK
 WHERE NOT EXISTS (
   SELECT 1 FROM usuarios WHERE email = 'admin@almoxarifado.local'
 );
+
+INSERT INTO produtos
+(nome, categoria, quantidade, valor_unitario)
+VALUES
+('Ypê','Limpeza',100,5.50),
+('alcol','Higiene',80,8.90),
+('sabaoempo','Limpeza',50,12.00);
+
+INSERT INTO movimentacoes
+(produto_id, usuario_id, tipo, quantidade, saldo_anterior, saldo_atual, observacao)
+VALUES
+(1,1,'ENTRADA',100,0,100,'Carga inicial'),
+(2,1,'ENTRADA',80,0,80,'Carga inicial'),
+(3,1,'ENTRADA',50,0,50,'Carga inicial');

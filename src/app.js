@@ -38,3 +38,4 @@ app.use('/api/movimentacoes', movementRoutes);
 app.use(errorHandler);
 
 module.exports = app;
+

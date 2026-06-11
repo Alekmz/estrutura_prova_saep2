@@ -39,4 +39,19 @@ router.delete('/:id', asyncHandler(async (req, res) => {
   res.status(204).send();
 }));
 
+router.get('/categorias', asyncHandler(async (_req, res) => {
+
+  const { pool } = require('../config/database');
+
+  const { rows } = await pool.query(`
+      SELECT
+          categoria,
+          SUM(quantidade * valor_unitario) AS total
+      FROM produtos
+      GROUP BY categoria
+  `);
+
+  res.json(rows);
+}));
+
 module.exports = router;
