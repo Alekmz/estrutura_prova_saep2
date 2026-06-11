@@ -1,0 +1,385 @@
+{
+  "info": {
+    "_postman_id": "f2dd8a3a-2a0b-4f37-9f7e-9d6129c9a001",
+    "name": "Almoxarifado Node MySQL",
+    "description": "Colecao para testar a API de almoxarifado em Node.js, Express e MySQL.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Autenticacao",
+      "item": [
+        {
+          "name": "Login administrador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) {",
+                  "    pm.collectionVariables.set('jwt_token', json.token);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@almoxarifado.local\",\n  \"senha\": \"Admin@123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar operador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Operador Teste\",\n  \"email\": \"operador.teste@almoxarifado.local\",\n  \"senha\": \"Operador@123\",\n  \"perfil\": \"OPERADOR\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/usuarios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Produtos",
+      "item": [
+        {
+          "name": "Listar produtos com filtros",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/produtos?page=1&limit=10&nome=&dataInicio=&dataFim=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "produtos"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "nome",
+                  "value": ""
+                },
+                {
+                  "key": "dataInicio",
+                  "value": ""
+                },
+                {
+                  "key": "dataFim",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar produto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Alcool 70\",\n  \"descricao\": \"Insumo de limpeza\",\n  \"quantidade\": 10,\n  \"unidade\": \"L\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/produtos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "produtos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar produto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Alcool 70 Atualizado\",\n  \"descricao\": \"Insumo atualizado\",\n  \"unidade\": \"L\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/produtos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "produtos",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deletar produto - apenas administrador",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/produtos/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "produtos",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movimentacoes",
+      "item": [
+        {
+          "name": "Listar movimentacoes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/movimentacoes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movimentacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registrar entrada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produtoId\": 1,\n  \"quantidade\": 5,\n  \"observacao\": \"Entrada de reposicao\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/movimentacoes/entrada",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movimentacoes",
+                "entrada"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registrar saida valida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produtoId\": 1,\n  \"quantidade\": 4,\n  \"observacao\": \"Saida para uso interno\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/movimentacoes/saida",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movimentacoes",
+                "saida"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registrar saida sem estoque suficiente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produtoId\": 1,\n  \"quantidade\": 9999,\n  \"observacao\": \"Teste de bloqueio\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/movimentacoes/saida",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "movimentacoes",
+                "saida"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
