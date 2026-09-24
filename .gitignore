@@ -1,5 +1,4 @@
 node_modules/
 .env
-coverage/
+dist/
 *.log
-npm-debug.log*

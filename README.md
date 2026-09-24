@@ -1,33 +1,28 @@
-# Sistema de Almoxarifado
+# Controle de Estoque - Projeto Base SAEP
 
-Backend em Node.js, Express e MySQL para controle de usuarios, produtos e movimentacoes de estoque.
+API em Node.js, Express e MySQL para controle de produtos e movimentacoes de estoque.
 
-## Arquitetura MVC
+Este e o projeto base entregue na avaliacao. Ele esta funcional, porem com toda a
+logica (validacoes, regras e SQL) concentrada em um unico arquivo de rotas.
+
+## Estrutura do projeto
 
 ```txt
+infra/
+  bd.sql                      Script de criacao do banco e dados iniciais
 src/
-  config/        Conexao com MySQL
-  controllers/   Recebem requisicoes e retornam respostas HTTP
-  errors/        Erros padronizados da aplicacao
-  middlewares/   Autenticacao, autorizacao e tratamento de erros
-  models/        Consultas SQL e acesso ao banco
-  routes/        Rotas da API
-  services/      Regras de negocio
-  utils/         Funcoes auxiliares
-  validators/    Validacao dos dados de entrada
+  config/
+    db.js                     Conexao com o MySQL
+  routes/
+    estoque.routes.js         Rotas, validacoes, regras e SQL
+  server.js                   Inicializacao do servidor
+docs/
+  testes/                     Evidencias de teste
+package.json
+README.md
 ```
 
-## Recursos
-
-- Autenticacao JWT.
-- Perfis `OPERADOR` e `ADMINISTRADOR`.
-- Rotas privadas por perfil.
-- Produtos com paginacao e filtros.
-- Entradas e saidas com data/hora e usuario responsavel.
-- Atualizacao automatica do saldo.
-- Bloqueio de saida com estoque insuficiente.
-
-## Como executar
+## Instalacao
 
 1. Instale as dependencias:
 
@@ -35,24 +30,24 @@ src/
 npm install
 ```
 
-2. Crie o banco MySQL executando:
+2. Crie o banco de dados:
 
 ```bash
-mysql -u root -p < sql/schema.sql
+mysql -u root -p < infra/bd.sql
 ```
 
-3. Configure o `.env`:
+3. Configure as variaveis de ambiente:
+
+```bash
+cp .env.example .env
+```
 
 ```env
-APP_PORT=3000
-JWT_SECRET=segredo-local-saep-fun-2
-JWT_EXPIRES_IN=8h
-
+PORT=3000
 DB_HOST=localhost
-DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=
-DB_NAME=almoxarifado_saep
+DB_NAME=empresa
 ```
 
 4. Inicie a API:
@@ -61,55 +56,77 @@ DB_NAME=almoxarifado_saep
 npm run dev
 ```
 
-5. Teste no navegador:
+A API sobe em `http://localhost:3000`.
 
-```txt
-http://localhost:3000/api
-http://localhost:3000/api/health
+## Endpoints
+
+| Metodo | Rota                      | Descricao                                   |
+| ------ | ------------------------- | ------------------------------------------- |
+| POST   | `/add_produto`            | Cadastra um produto                         |
+| GET    | `/listar_produtos`        | Lista todos os produtos                     |
+| GET    | `/listar_produto/:id`     | Consulta um produto pelo id                 |
+| PUT    | `/atualizar_produto/:id`  | Atualiza um produto                         |
+| DELETE | `/deletar_produto`        | Remove um produto                           |
+| POST   | `/movimentar_produto`     | Registra uma movimentacao (somente ENTRADA) |
+| GET    | `/listar_movimentacoes`   | Lista as movimentacoes                      |
+
+### POST /add_produto
+
+```json
+{
+  "nome": "Teclado ABNT2",
+  "descricao": "Teclado USB padrao ABNT2 com fio",
+  "valor": 89.90,
+  "quantidade": 10
+}
 ```
 
-## Usuario inicial
+O campo `descricao` e opcional. A `data_cadastro` e preenchida pelo banco.
 
-O script `sql/schema.sql` cria um administrador:
+### PUT /atualizar_produto/:id
 
-- E-mail: `admin@almoxarifado.local`
-- Senha: `Admin@123`
-
-## Insomnia
-
-Importe o arquivo:
-
-```txt
-INSOMNIA_IMPORTAR.json
+```json
+{
+  "nome": "Teclado ABNT2 preto",
+  "descricao": "Teclado USB padrao ABNT2 com fio",
+  "valor": 99.90,
+  "quantidade": 12
+}
 ```
 
-Depois faca login em `Autenticacao > Login administrador`, copie o token e coloque no `Base Environment` em `jwt_token`.
+### DELETE /deletar_produto
 
-## Postman
-
-Importe o arquivo:
-
-```txt
-POSTMAN_IMPORTAR.json
+```json
+{
+  "id_produto": 1
+}
 ```
 
-No Postman, execute `Autenticacao > Login administrador`. A colecao salva o token automaticamente na variavel `jwt_token`.
+### POST /movimentar_produto
 
-## Principais rotas
+```json
+{
+  "id_produto": 1,
+  "tipo": "ENTRADA",
+  "quantidade": 5
+}
+```
 
-- `GET /api`
-- `GET /api/health`
-- `POST /api/auth/login`
-- `GET /api/usuarios`
-- `POST /api/usuarios`
-- `GET /api/produtos?page=1&limit=10&nome=alcool&dataInicio=2026-01-01&dataFim=2026-12-31`
-- `POST /api/produtos`
-- `PUT /api/produtos/:id`
-- `DELETE /api/produtos/:id`
-- `POST /api/movimentacoes/entrada`
-- `POST /api/movimentacoes/saida`
-- `GET /api/movimentacoes`
+Apenas o tipo `ENTRADA` esta implementado. Outros valores retornam `422`.
 
-Operadores podem consultar, inserir e atualizar. Administradores podem consultar, inserir, atualizar e deletar.
-# estrutura_prova_saep2
-# estrutura_prova_saep2
+### GET /listar_movimentacoes
+
+Retorna todas as movimentacoes com o nome do produto, ordenadas da mais recente
+para a mais antiga pelo `id_movimentacao`.
+
+```json
+[
+  {
+    "id_movimentacao": 3,
+    "id_produto": 3,
+    "nome": "Monitor 21 polegadas",
+    "tipo": "ENTRADA",
+    "quantidade": 5
+  }
+]
+```

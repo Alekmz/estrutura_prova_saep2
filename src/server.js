@@ -1,9 +1,15 @@
+const express = require('express');
 require('dotenv').config();
 
-const app = require('./app');
+const estoqueRoutes = require('./routes/estoque.routes');
 
-const port = process.env.APP_PORT || 3000;
+const app = express();
 
-app.listen(port, () => {
-  console.log(`API de almoxarifado em execucao na porta ${port}`);
+app.use(express.json());
+app.use(estoqueRoutes);
+
+const porta = process.env.PORT || 3000;
+
+app.listen(porta, () => {
+  console.log('Servidor rodando na porta ' + porta);
 });
